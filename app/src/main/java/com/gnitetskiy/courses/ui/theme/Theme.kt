@@ -30,7 +30,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun CoursesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Динамические цвета доступны на Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {

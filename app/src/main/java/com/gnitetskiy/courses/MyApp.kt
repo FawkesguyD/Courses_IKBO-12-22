@@ -17,10 +17,8 @@ import com.gnitetskiy.courses.ui.theme.CoursesTheme
 @Composable
 fun MyApp() {
     val context = LocalContext.current
-    // Получаем SharedPreferences с именем "settings"
     val sharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
-    // Состояние для отслеживания значения "theme_preference" с помощью produceState
     val themePreference by produceState(
         initialValue = sharedPrefs.getString("theme_preference", "system") ?: "system"
     ) {
@@ -35,18 +33,15 @@ fun MyApp() {
         }
     }
 
-    // Преобразуем значение настройки в булево значение для переключения темы
     val darkTheme = when (themePreference) {
         "light" -> false
         "dark" -> true
         else -> isSystemInDarkTheme()
     }
 
-    // Применяем тему и выстраиваем навигацию
     CoursesTheme(darkTheme = darkTheme) {
         val navController = rememberNavController()
         Surface(modifier = Modifier.fillMaxSize()) {
-            // Вызываем ваш NavGraph, где описаны маршруты
             AppNavHost(navController = navController)
         }
     }

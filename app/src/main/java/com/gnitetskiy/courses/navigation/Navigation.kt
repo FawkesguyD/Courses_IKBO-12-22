@@ -1,17 +1,16 @@
 package com.gnitetskiy.courses.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.gnitetskiy.courses.ui.screens.*
+import androidx.navigation.compose.rememberNavController
+import com.gnitetskiy.courses.ui.screens.LoginScreen
 
 @Composable
-fun AppNavHost(navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Login.route
-    ) {
+fun Navigation() {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
@@ -22,19 +21,16 @@ fun AppNavHost(navController: NavHostController) {
             )
         }
         composable(Screen.AvailableCourses.route) {
-            AvailableCoursesScreen(
-                onCourseClick = { navController.navigate(Screen.CourseDetails.route) },
-                navController = navController
-            )
+            // Здесь будет экран доступных курсов
         }
         composable(Screen.MyCourses.route) {
-            MyCoursesScreen(navController = navController)
+            // Здесь будет экран моих курсов
         }
         composable(Screen.CourseDetails.route) {
-            CourseDetailsScreen(navController = navController)
+            // Здесь будет экран деталей курса
         }
         composable(Screen.Settings.route) {
-            SettingsScreen(navController = navController)
+            // Здесь будет экран настроек
         }
     }
-}
+} 

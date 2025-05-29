@@ -9,13 +9,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.gnitetskiy.courses.viewmodel.AuthState
+import com.gnitetskiy.courses.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit
+    onLoginSuccess: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLogin by remember { mutableStateOf(true) }
+    var registrationSuccess by remember { mutableStateOf(false) }
+
+    val authState by viewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthState.Success -> onLoginSuccess()
+            is AuthState.RegistrationSuccess -> {
+                isLogin = true
+                registrationSuccess = true
+            }
+            else -> {}
+        }
+    }
 
     Scaffold { paddingValues ->
         Column(
@@ -26,7 +45,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Заглушка для картинки (серый фон)
+            // Заглушка
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -38,6 +57,13 @@ fun LoginScreen(
             Text(
                 text = "Courses",
                 style = MaterialTheme.typography.headlineMedium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = if (isLogin) "Вход" else "Регистрация",
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -62,10 +88,47 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { onLoginClick() },
+                onClick = {
+                    if (isLogin) {
+                        viewModel.login(email, password)
+                    } else {
+                        viewModel.register(email, password)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Log In")
+                Text(if (isLogin) "Войти" else "Зарегистрироваться")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextButton(
+                onClick = { isLogin = !isLogin }
+            ) {
+                Text(if (isLogin) "Нет аккаунта? Зарегистрируйтесь" else "Уже есть аккаунт? Войдите")
+            }
+
+            if (registrationSuccess) {
+                Text(
+                    text = "Регистрация прошла успешно! Теперь войдите в аккаунт.",
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            when (authState) {
+                is AuthState.Loading -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator()
+                }
+                is AuthState.Error -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = (authState as AuthState.Error).message,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                else -> {}
             }
         }
     }

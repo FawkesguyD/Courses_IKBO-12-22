@@ -14,7 +14,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-// --- Модели данных для Open Library API ---
 data class OpenLibraryResponse(
     val start: Int,
     @SerializedName("num_found") val numFound: Int,
@@ -26,7 +25,6 @@ data class Book(
     @SerializedName("author_name") val authorName: List<String>?
 )
 
-// --- Retrofit-интерфейс ---
 interface OpenLibraryApiService {
     @GET("search.json")
     suspend fun searchBooks(
@@ -35,7 +33,6 @@ interface OpenLibraryApiService {
     ): OpenLibraryResponse
 }
 
-// --- ViewModel для работы с API и локальным хранением ---
 class BooksViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _books = MutableStateFlow<List<Book>>(emptyList())
@@ -55,11 +52,9 @@ class BooksViewModel(application: Application) : AndroidViewModel(application) {
     private val apiService = retrofit.create(OpenLibraryApiService::class.java)
 
     init {
-        // Пример начального запроса
         searchBooks("harry potter")
     }
 
-    // НЕ suspend-функция: внутри вызывается корутина
     fun searchBooks(query: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -79,9 +74,7 @@ class BooksViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Сохранение истории поиска через SharedPreferences
     private fun saveSearchHistory(query: String) {
-        // Тоже оборачиваем в корутину
         viewModelScope.launch {
             val prefs = getApplication<Application>()
                 .getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -93,7 +86,6 @@ class BooksViewModel(application: Application) : AndroidViewModel(application) {
             prefs.edit().putStringSet("search_history", newHistory).apply()
         }
     }
-    // В файле BooksViewModel.kt
     fun recordSearchHistory(query: String) {
         if (query.isNotBlank()) {
             viewModelScope.launch {

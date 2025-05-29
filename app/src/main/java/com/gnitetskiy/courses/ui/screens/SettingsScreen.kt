@@ -43,13 +43,28 @@ fun SettingsScreen(navController: NavHostController) {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            // Выпадающий список для выбора темы
             ThemeDropdown()
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            val context = LocalContext.current
+            val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+            val email = prefs.getString("user_email", null)
+            if (email != null) {
+                Text(
+                    text = "Почта: $email",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             Button(
-                onClick = { /* Логика выхода из аккаунта */ },
+                onClick = {
+                    prefs.edit().remove("user_email").apply()
+                    navController.navigate(com.gnitetskiy.courses.navigation.Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Log Out")
@@ -61,9 +76,7 @@ fun SettingsScreen(navController: NavHostController) {
 @Composable
 fun ThemeDropdown() {
     val context = LocalContext.current
-    // Получаем SharedPreferences
     val sharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-    // Читаем сохранённую тему – по умолчанию "system"
     var currentTheme by remember {
         mutableStateOf(sharedPrefs.getString("theme_preference", "system") ?: "system")
     }
@@ -93,7 +106,6 @@ fun ThemeDropdown() {
                     text = { Text(labels[option] ?: option) },
                     onClick = {
                         expanded = false
-                        // Сохраняем выбранный вариант в SharedPreferences
                         sharedPrefs.edit().putString("theme_preference", option).apply()
                         currentTheme = option
                     }
