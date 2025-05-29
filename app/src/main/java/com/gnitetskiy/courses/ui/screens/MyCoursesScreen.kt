@@ -41,7 +41,7 @@ fun MyCoursesScreen(navController: NavHostController) {
                         .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Заглушка для картинки
+                    // Заглушка
                     Box(
                         modifier = Modifier
                             .size(50.dp)

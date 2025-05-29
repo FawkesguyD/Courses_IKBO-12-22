@@ -29,7 +29,6 @@ fun CourseDetailsScreen(navController: NavHostController) {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Заглушка для картинки
             Box(
                 modifier = Modifier
                     .height(200.dp)

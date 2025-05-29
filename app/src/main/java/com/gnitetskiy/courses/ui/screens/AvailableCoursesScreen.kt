@@ -36,10 +36,8 @@ fun AvailableCoursesScreen(
         factory = BooksViewModelFactory(LocalContext.current.applicationContext as Application)
     )
 ) {
-    // Текущее значение поискового запроса
     var searchQuery by remember { mutableStateOf("") }
 
-    // Состояния из ViewModel
     val books by viewModel.books.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -48,11 +46,9 @@ fun AvailableCoursesScreen(
         showErrorDialog = true
     }
 
-    // Работа с SharedPreferences для чтения истории
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
-    // Читаем историю поиска (список строк) и слушаем изменения
     val searchHistory by produceState(
         initialValue = prefs.getStringSet("search_history", emptySet())?.toList() ?: emptyList()
     ) {
@@ -67,13 +63,10 @@ fun AvailableCoursesScreen(
         }
     }
 
-    // Флаг, показывать ли выпадающее меню истории
     var showHistoryDropdown by remember { mutableStateOf(false) }
 
-    // Фокус-менеджер, чтобы скрывать клавиатуру и сворачивать меню
     val focusManager = LocalFocusManager.current
 
-    // Фильтр для отображаемых книг
     val displayedBooks = if (searchQuery.isBlank()) books
     else books.filter { it.title.contains(searchQuery, ignoreCase = true) }
 
@@ -91,21 +84,17 @@ fun AvailableCoursesScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Блок для поля ввода + выпадающего меню
             Box(modifier = Modifier.fillMaxWidth()) {
 
-                // Поле ввода
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = {
                         searchQuery = it
-                        // Показываем историю, если что-то введено или поле в фокусе
                         showHistoryDropdown = true
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
-                            // Когда поле получает фокус, показываем историю
                             showHistoryDropdown = focusState.isFocused
                         },
                     label = { Text("Search Books") },
@@ -113,7 +102,6 @@ fun AvailableCoursesScreen(
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = {
                                 searchQuery = ""
-                                // Например, сбросим на дефолтный поиск
                                 viewModel.searchBooks("harry potter")
                             }) {
                                 Icon(
@@ -130,11 +118,9 @@ fun AvailableCoursesScreen(
                     }
                 )
 
-                // Выпадающее меню с историей (или любым списком "подсказок")
                 DropdownMenu(
                     expanded = showHistoryDropdown && searchHistory.isNotEmpty(),
                     onDismissRequest = {
-                        // При клике вне меню закрываем
                         showHistoryDropdown = false
                     },
                     modifier = Modifier
@@ -148,7 +134,6 @@ fun AvailableCoursesScreen(
                                 searchQuery = historyItem
                                 viewModel.searchBooks(historyItem)
                                 showHistoryDropdown = false
-                                // Спрячем клавиатуру
                                 focusManager.clearFocus()
                             }
                         )
@@ -156,12 +141,10 @@ fun AvailableCoursesScreen(
                 }
             }
 
-            // Кнопка "Поиск" (опционально) – или можно искать при каждом вводе
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
                     viewModel.searchBooks(searchQuery)
-                    // Скрываем меню истории и клавиатуру
                     showHistoryDropdown = false
                     focusManager.clearFocus()
                 },
@@ -200,7 +183,6 @@ fun AvailableCoursesScreen(
                                 .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Заглушка под обложку
                             Box(
                                 modifier = Modifier
                                     .size(50.dp)
@@ -220,7 +202,6 @@ fun AvailableCoursesScreen(
                                     )
                                 }
                             }
-                            // При нажатии "Open" – сохраняем запрос и переходим на детали
                             Button(onClick = {
                                 viewModel.recordSearchHistory(searchQuery)
                                 onCourseClick()
